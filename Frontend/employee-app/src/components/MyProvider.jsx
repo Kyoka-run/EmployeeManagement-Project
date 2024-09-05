@@ -9,8 +9,8 @@ class MyProvider extends Component {
         this.state.isUserLoggedIn = AuthenticationService.isUserLoggedIn();
         return (
             <MContext.Provider value={
-                { state:this.state,setIsUserLoggedIn:(value) => 
-                    this.setState({isUserLoggedIn:value})}}>
+                { state:this.state,
+                    setIsUserLoggedIn:(value) => this.setState({isUserLoggedIn:value})}}>
                 {this.props.children}
             </MContext.Provider>
         )

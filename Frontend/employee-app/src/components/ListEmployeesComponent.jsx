@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import EmployeeDataService from  '../service/EmployeeDataService.jsx';
 import withRouter from './withRouter';
 import AuthenticationService from '../service/AuthenticationService.jsx';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Paper, Typography } from '@mui/material';
 
 class ListEmployeesComponent extends Component {
     constructor(props) {
@@ -54,62 +55,75 @@ class ListEmployeesComponent extends Component {
 
     render() {
         if (!AuthenticationService.isUserLoggedIn()) {
-            this.props.navigation('/login')
+            this.props.navigation('/login');
         } else {
             return (
                 <div className="container">
-                    <h3>All Employees</h3>
+                    <Typography variant="h4" gutterBottom>
+                        All Employees
+                    </Typography>
                     {this.state.message && <div className='alert alert-success'>{this.state.message}</div>}
-                    <div className="container">
-                        <table className="table">
-                            <thead>
-                                <tr>
-                                    <th>Id</th>
-                                    <th>Name</th>
-                                    <th>Position</th>
-                                    <th>Department</th>
-                                    <th>Email</th>
-                                    <th>Update</th>
-                                    <th>Delete</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Id</TableCell>
+                                    <TableCell>Name</TableCell>
+                                    <TableCell>Position</TableCell>
+                                    <TableCell>Department</TableCell>
+                                    <TableCell>Email</TableCell>
+                                    <TableCell>Projects</TableCell>
+                                    <TableCell>Update</TableCell>
+                                    <TableCell>Delete</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
                                 {
                                     this.state.employees.map(
                                         employee =>
-                                            <tr key={employee.id}>
-                                                <td>{employee.id}</td>
-                                                <td>{employee.name}</td>
-                                                <td>{employee.position}</td>
-                                                <td>{employee.department}</td>
-                                                <td>{employee.email}</td>
-                                                <td>
-                                                    <button className='btn btn-success' onClick={
-                                                        () => this.updateEmployeeClicked(employee.id)}>
+                                            <TableRow key={employee.id}>
+                                                <TableCell>{employee.id}</TableCell>
+                                                <TableCell>{employee.name}</TableCell>
+                                                <TableCell>{employee.position}</TableCell>
+                                                <TableCell>{employee.department}</TableCell>
+                                                <TableCell>{employee.email}</TableCell>
+                                                <TableCell>{employee.projects.join(', ')}</TableCell> 
+                                                <TableCell>
+                                                    <Button
+                                                        variant="contained"
+                                                        color="primary"
+                                                        onClick={() => this.updateEmployeeClicked(employee.id)}>
                                                         Update
-                                                    </button>
-                                                </td>
-                                                <td>
-                                                    <button className='btn btn-warning' onClick={
-                                                        () => this.deleteEmployeeClicked(employee.id)}>
+                                                    </Button>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Button
+                                                        variant="contained"
+                                                        color="secondary"
+                                                        onClick={() => this.deleteEmployeeClicked(employee.id)}>
                                                         Delete
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
                                     )
                                 }
-                            </tbody>
-                        </table>
-                    </div>
-                    <div className='row'>
-                        <button className='btn btn-success' onClick={this.addEmployeeClicked}>
-                            Add
-                        </button>
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+
+                    <div className='row' style={{ marginTop: '20px' }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={this.addEmployeeClicked}>
+                            Add Employee
+                        </Button>
                     </div>
                 </div>
             );
         }
-    }    
+    }
 }
 
 export default withRouter(ListEmployeesComponent);

@@ -6,6 +6,8 @@ import LoginComponent from './LoginComponent.jsx';
 import LogoutComponent from './LogoutComponent.jsx';
 import MenuComponent from './MenuComponent.jsx';
 import MyProvider from './MyProvider.jsx';
+import ListProjectsComponent from "./ListProjectsComponent.jsx";
+import ProjectComponent from "./ProjectComponent.jsx";
 
 class EmployeeApp extends Component {
   render() {
@@ -19,6 +21,8 @@ class EmployeeApp extends Component {
                 <Route path="/logout" element={<LogoutComponent />} />
                 <Route path="/employees" element={<ListEmployeesComponent/>} />
                 <Route path="/employees/:id" element={<EmployeeComponent/>} />
+                <Route path="/projects" element={<ListProjectsComponent/>} />
+                <Route path="/projects/:id" element={<ProjectComponent/>} />
             </Routes>
           </MyProvider>
         </>

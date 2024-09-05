@@ -4,6 +4,7 @@ import com.employeemanagement.BaseIntegrationTest;
 import com.employeemanagement.EmployeeManagementApplication;
 import com.employeemanagement.exception.EmployeeNotFoundException;
 import com.employeemanagement.model.Employee;
+import com.employeemanagement.model.Project;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.json.JSONException;
 import org.junit.jupiter.api.MethodOrderer;
@@ -19,6 +20,9 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,7 +44,12 @@ public class EmployeeControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     @Order(1)
     public void addEmployee() {
-        Employee employee = new Employee(1L,"Manbo","Manager","Finance","114514@gmail.com");
+        List<Project> mockProjects = new ArrayList<Project>() {{
+            add(new Project(1L, "Project Alpha", "Description of Project Alpha", new ArrayList<>()));
+            add(new Project(2L, "Project Beta", "Description of Project Beta", new ArrayList<>()));
+        }};
+
+        Employee employee = new Employee(10001L,"Manbo","Manager","Finance","114514@gmail.com", mockProjects);
 
         HttpEntity<Employee> entity = new HttpEntity<>(employee,getHttpHeader());
 
@@ -57,7 +66,12 @@ public class EmployeeControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     @Order(2)
     public void updateEmployee() throws JSONException {
-        Employee employee = new Employee(1L,"Manbo","Manager","Finance","114514@gmail.com");
+        List<Project> mockProjects = new ArrayList<Project>() {{
+            add(new Project(1L, "Project Alpha", "Description of Project Alpha", new ArrayList<>()));
+            add(new Project(2L, "Project Beta", "Description of Project Beta", new ArrayList<>()));
+        }};
+
+        Employee employee = new Employee(10001L,"Manbo","Manager","Finance","114514@gmail.com", mockProjects);
 
         HttpEntity<Employee> entity = new HttpEntity<>(employee,getHttpHeader());
 

@@ -1,30 +1,37 @@
 package com.employeemanagement.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class Employee {
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String name;
 	private String position;
 	private String department;
 	private String email;
+	@ManyToMany
+	@JoinTable(
+			name = "employee_project",
+			joinColumns = @JoinColumn(name = "employee_id"),
+			inverseJoinColumns = @JoinColumn(name = "project_id")
+	)
+	private List<Project> projects;
 	
 	public Employee() {
 
 	}
 
-	public Employee(Long id, String name, String position, String department, String email) {
+	public Employee(Long id, String name, String position, String department, String email,List<Project> projects) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.position = position;
 		this.department = department;
 		this.email = email;
+		this.projects = projects;
 	}
 
 	public Long getId() {
@@ -66,5 +73,12 @@ public class Employee {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	
+
+	public List<Project> getProjects() {
+		return projects;
+	}
+
+	public void setProjects(List<Project> projects) {
+		this.projects = projects;
+	}
 }

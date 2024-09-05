@@ -1,6 +1,7 @@
 package com.employeemanagement.controller;
 
 import com.employeemanagement.model.Employee;
+import com.employeemanagement.model.Project;
 import com.employeemanagement.service.EmployeeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,9 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doNothing;
 
@@ -39,9 +43,14 @@ public class EmployeeControllerMockTest {
 
     private static final ObjectMapper om = new ObjectMapper();
 
-    Employee mockEmployee = new Employee(10001L,"Manbo","Manager","Finance","114514@gmail.com");
+    List<Project> mockProjects = new ArrayList<Project>() {{
+        add(new Project(1L, "Project Alpha", "Description of Project Alpha", new ArrayList<>()));
+        add(new Project(2L, "Project Beta", "Description of Project Beta", new ArrayList<>()));
+    }};
 
-    String exampleEmployeeJson = "{\"id\":10001,\"name\":\"Manbo\",\"position\":\"Manager\",\"department\":\"Finance\",\"email\":\"114514@gmail.com\"}";
+    Employee mockEmployee = new Employee(10001L,"Manbo","Manager","Finance","114514@gmail.com", mockProjects);
+
+    String exampleEmployeeJson = "{\"id\":10001,\"name\":\"Manbo\",\"position\":\"Manager\",\"department\":\"Finance\",\"email\":\"114514@gmail.com\",\"projects\":[{\"id\":1,\"name\":\"Project Alpha\",\"describe\":\"Description of Project Alpha\"},{\"id\":2,\"name\":\"Project Beta\",\"describe\":\"Description of Project Beta\"}]}";
 
     @Test
     public void getEmployee() throws Exception {
@@ -57,7 +66,7 @@ public class EmployeeControllerMockTest {
 
     @Test
     public void createEmployee() throws Exception {
-        Employee employee = new Employee(10001L, "Manbo", "Manager", "Finance", "114514@gmail.com");
+        Employee employee = new Employee(10001L,"Manbo","Manager","Finance","114514@gmail.com", mockProjects);
 
         Mockito.when(employeeService.createEmployee(Mockito.any(Employee.class))).thenReturn(employee);
 
@@ -74,13 +83,13 @@ public class EmployeeControllerMockTest {
 
     @Test
     public void updateEmployee() throws Exception {
-        Employee employee = new Employee(10001L, "Manbo", "Manager", "Finance", "114514@gmail.com");
+        Employee mockEmployee = new Employee(10001L,"Manbo","Manager","Finance","114514@gmail.com", mockProjects);
 
         Mockito.when(employeeService
                 .updateEmployee(Mockito.any(Employee.class),Mockito.anyLong()))
-                .thenReturn(employee);
+                .thenReturn(mockEmployee);
 
-        String employeeString = om.writeValueAsString(employee);
+        String employeeString = om.writeValueAsString(mockEmployee);
 
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .put("/employees/10001")

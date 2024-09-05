@@ -2,6 +2,7 @@ import AuthenticationService from "../service/AuthenticationService";
 import withRouter from './withRouter.jsx';
 import { MContext } from './MyProvider.jsx';
 import React , { Component } from "react";
+import { Container, Box, Typography, TextField, Button, Alert } from '@mui/material';
 
 class LoginComponent extends Component {
 
@@ -40,20 +41,64 @@ class LoginComponent extends Component {
 
     render() {
         return (
-            <div>
-                <h1 data-testid="loginHeader">Login</h1>
-                <div className="container">
-                    {this.state.hasLoginFailed && <div className="alert alert-warning">Invalid Credentials</div>}
-                    {this.state.showSuccessMessage && <div>Login Sucessful</div>}
-                    User Name: <input data-testid="username" type="text" name="username" value={this.state.username} onChange={this.handleChange} />
-                    Password: <input data-testid="password" type="password" name="password" value={this.state.password} onChange={this.handleChange} />
-                    <MContext.Consumer>
-                        {(context) => (
-                            <button data-testid="login" className="btn btn-success" onClick={()=>{this.loginClicked(context)}}>Login</button>
-                        )}</MContext.Consumer>
-                </div>
-            </div>
-        )
+            <Container maxWidth="sm">
+                <Box
+                    sx={{
+                        marginTop: 8,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        padding: 3,
+                        border: '1px solid grey',
+                        borderRadius: 2,
+                        boxShadow: 3,
+                    }}
+                >
+                    <Typography variant="h4" gutterBottom data-testid="loginHeader">
+                        Login
+                    </Typography>
+                    <div className="container">
+                        {this.state.hasLoginFailed && <Alert severity="error">Invalid Credentials</Alert>}
+                        {this.state.showSuccessMessage && <Alert severity="success">Login Successful</Alert>}
+                        <TextField
+                            data-testid="username"
+                            label="User Name"
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            name="username"
+                            value={this.state.username}
+                            onChange={this.handleChange}
+                        />
+                        <TextField
+                            data-testid="password"
+                            label="Password"
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            type="password"
+                            name="password"
+                            value={this.state.password}
+                            onChange={this.handleChange}
+                        />
+                        <MContext.Consumer>
+                            {(context) => (
+                                <Button
+                                    data-testid="login"
+                                    variant="contained"
+                                    color="primary"
+                                    fullWidth
+                                    onClick={() => { this.loginClicked(context) }}
+                                    sx={{ mt: 2 }}
+                                >
+                                    Login
+                                </Button>
+                            )}
+                        </MContext.Consumer>
+                    </div>
+                </Box>
+            </Container>
+        );
     }
 }
 
