@@ -6,7 +6,7 @@ const Employee_API_URL = 'http://localhost:8080/api/employees';
 
 const authHeader = {
     headers: {
-        Authorization: 'Basic ' + btoa(USER + ':' + PASSWORD)
+        Authorization: 'Basic ' + btoa(USER + ':' + PASSWORD),
     }
 };
 

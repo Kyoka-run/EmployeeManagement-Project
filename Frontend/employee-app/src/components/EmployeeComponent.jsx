@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import EmployeeDataService from "../service/EmployeeDataService";
 import ProjectDataService from "../service/ProjectDataService";
 import withRouter from './withRouter';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form } from 'formik';
 import { TextField, Button, Box, Typography, Select, MenuItem, InputLabel, FormControl, Checkbox, ListItemText } from '@mui/material'; 
 
 class EmployeeComponent extends Component {
@@ -23,7 +23,14 @@ class EmployeeComponent extends Component {
     }
 
     componentDidMount() {
-        console.log(this.state.id)
+        ProjectDataService.retrieveAllProjects()
+            .then(response => {
+                this.setState({ allProjects: response.data });
+            })
+            .catch(error => {
+                console.error("There was an error retrieving the projects:", error);
+            });
+
         if (Number(this.state.id) === -1) {
             return;
         }
@@ -34,19 +41,12 @@ class EmployeeComponent extends Component {
                 name: response.data.name,
                 position: response.data.position,
                 department: response.data.department,
-                email: response.data.email
+                email: response.data.email,
                 }))
             .catch(error => {
                 console.error("There was an error retrieving the employee:", error);
             });
 
-        ProjectDataService.retrieveAllProjects()
-            .then(response => {
-                this.setState({ allProjects: response.data });
-            })
-            .catch(error => {
-                console.error("There was an error retrieving the projects:", error);
-            });
     }
 
     validate(values) {
@@ -66,7 +66,6 @@ class EmployeeComponent extends Component {
         return errors;
     }
 
-
     onSubmit(values) {
         let employee = {
             id: this.state.id,
@@ -74,23 +73,33 @@ class EmployeeComponent extends Component {
             position: values.position,
             department: values.department,
             email: values.email,
-            projects: this.state.projects
+            projects: this.state.projects.map(proj => ({
+                id: proj.id,
+                name: proj.name,
+                description: proj.description
+            }))
         }
-
         if (Number(this.state.id) === -1) {
             EmployeeDataService.createEmployee(employee)
-               .then(() => this.props.navigation('/employees'))
+               .then(() => this.props.navigation('/employees', { state: { message: 'Employee created successfully!' }}));
         } else {
             EmployeeDataService.updateEmployee(this.state.id, employee)
-               .then(() => this.props.navigation('/employees'))
+               .then(() => this.props.navigation('/employees', { state: { message: 'Employee updated successfully!' }}));
         }
-        console.log(values);
+        
     }
-
+    
     handleProjectChange(event) {
-        this.setState({ projects: event.target.value });
+        const { value } = event.target;
+        this.setState({
+            projects: typeof value === 'string' ? value.split(',').map(id => this.state.allProjects.find(proj => proj.id.toString() === id)) : value.map(project => ({
+                id: project.id,
+                name: project.name,
+                description: project.description
+            })),
+        });
     }
-
+    
     render() {
         let { id, name, position, department, email, projects, allProjects } = this.state;
         return (
@@ -108,16 +117,12 @@ class EmployeeComponent extends Component {
                 >
                     {({ values, handleChange, handleSubmit, errors, touched }) => (
                         <Form onSubmit={handleSubmit}>
-                            <Box sx={{ mb: 2 }}>
-                                <TextField
-                                    fullWidth
-                                    label="Id"
-                                    name="id"
-                                    variant="outlined"
-                                    value={values.id}
-                                    disabled
-                                />
-                            </Box>
+                            <input
+                                type="hidden"
+                                name="id"
+                                value={values.id}
+                            />
+
                             <Box sx={{ mb: 2 }}>
                                 <TextField
                                     fullWidth
@@ -166,7 +171,7 @@ class EmployeeComponent extends Component {
                                     helperText={touched.email && errors.email}
                                 />
                             </Box>
-
+                            
                             <FormControl fullWidth sx={{ mb: 2 }}>
                                 <InputLabel>Projects</InputLabel>
                                 <Select
@@ -175,13 +180,14 @@ class EmployeeComponent extends Component {
                                     onChange={this.handleProjectChange}
                                     renderValue={(selected) => selected.map((proj) => proj.name).join(', ')}
                                 >
-                                    {allProjects.map((project) => (
-                                        <MenuItem key={project.id} value={project}>
-                                            <Checkbox checked={projects.includes(project)} />
-                                            <ListItemText primary={project.name} />
-                                        </MenuItem>
+                                {allProjects.map((project) => (
+                                    <MenuItem key={project.id} value={project}>
+                                    <Checkbox checked={projects.some(p => p.id === project.id)} />
+                                    <ListItemText primary={project.name} />
+                                    </MenuItem>
                                     ))}
                                 </Select>
+
                             </FormControl>
 
                             <Button variant="contained" color="primary" type="submit">

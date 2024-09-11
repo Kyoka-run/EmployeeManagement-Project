@@ -1,9 +1,9 @@
 import React, { Component } from "react";
+import ProjectDataService from "../service/ProjectDataService";
 import EmployeeDataService from "../service/EmployeeDataService";
-import ProjectDataService from "../service/ProjectDataService"; 
 import withRouter from './withRouter';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { TextField, Button, Box, Typography, Select, MenuItem, InputLabel, FormControl, Checkbox, ListItemText } from '@mui/material';
+import { Formik, Form } from 'formik';
+import { TextField, Button, Box, Typography, Select, MenuItem, InputLabel, FormControl, Checkbox, ListItemText } from '@mui/material'; 
 
 class ProjectComponent extends Component {
     constructor(props) {
@@ -13,7 +13,7 @@ class ProjectComponent extends Component {
             name: "",
             description: "",
             employees: [], 
-            allEmployees: []
+            allEmployees: [] 
         }
         this.onSubmit = this.onSubmit.bind(this);
         this.validate = this.validate.bind(this);
@@ -21,26 +21,26 @@ class ProjectComponent extends Component {
     }
 
     componentDidMount() {
-        console.log(this.state.id)
-        if (Number(this.state.id) === -1) {
-            return;
-        }
-        ProjectDataService.retrieveProject(this.state.id) 
-           .then(response => 
-                this.setState({
-                    name: response.data.name,
-                    description: response.data.description,
-                }))
-            .catch(error => {
-                console.error("There was an error retrieving the project:", error);
-            });
-
         EmployeeDataService.retrieveAllEmployees()
             .then(response => {
                 this.setState({ allEmployees: response.data });
             })
             .catch(error => {
                 console.error("There was an error retrieving the employees:", error);
+            });
+        if (Number(this.state.id) === -1) {
+            return;
+        }
+
+        // Retrieve the existing project to update
+        ProjectDataService.retrieveProject(this.state.id)
+           .then(response => 
+                this.setState({
+                name: response.data.name,
+                description: response.data.description,
+                }))
+            .catch(error => {
+                console.error("There was an error retrieving the project:", error);
             });
     }
 
@@ -60,22 +60,36 @@ class ProjectComponent extends Component {
             id: this.state.id,
             name: values.name,
             description: values.description,
+            employees: this.state.employees.map(emp => ({
+                id: emp.id,
+                name: emp.name,
+                position: emp.position,
+                department: emp.department,
+                email: emp.email
+            }))
         }
-
         if (Number(this.state.id) === -1) {
-            ProjectDataService.createProject(project) 
-               .then(() => this.props.navigation('/projects')) 
+            ProjectDataService.createProject(project)
+               .then(() => this.props.navigation('/projects', { state: { message: 'Project created successfully!' }}));
         } else {
-            ProjectDataService.updateProject(this.state.id, project) 
-               .then(() => this.props.navigation('/projects')) 
+            ProjectDataService.updateProject(this.state.id, project)
+               .then(() => this.props.navigation('/projects', { state: { message: 'Project updated successfully!' }}));
         }
-        console.log(values);
     }
-
+    
     handleEmployeeChange(event) {
-        this.setState({ employees: event.target.value });
+        const { value } = event.target;
+        this.setState({
+            employees: typeof value === 'string' ? value.split(',').map(id => this.state.allEmployees.find(emp => emp.id.toString() === id)) : value.map(employee => ({
+                id: employee.id,
+                name: employee.name,
+                position: employee.position,
+                department: employee.department,
+                email: employee.email
+            })),
+        });
     }
-
+    
     render() {
         let { id, name, description, employees, allEmployees } = this.state;
         return (
@@ -93,16 +107,12 @@ class ProjectComponent extends Component {
                 >
                     {({ values, handleChange, handleSubmit, errors, touched }) => (
                         <Form onSubmit={handleSubmit}>
-                            <Box sx={{ mb: 2 }}>
-                                <TextField
-                                    fullWidth
-                                    label="Id"
-                                    name="id"
-                                    variant="outlined"
-                                    value={values.id}
-                                    disabled
-                                />
-                            </Box>
+                            <input
+                                type="hidden"
+                                name="id"
+                                value={values.id}
+                            />
+
                             <Box sx={{ mb: 2 }}>
                                 <TextField
                                     fullWidth
@@ -121,10 +131,10 @@ class ProjectComponent extends Component {
                                     label="Description"
                                     name="description"
                                     variant="outlined"
-                                    value={values.position}
+                                    value={values.description}
                                     onChange={handleChange}
-                                    error={touched.position && Boolean(errors.position)}
-                                    helperText={touched.position && errors.position}
+                                    error={touched.description && Boolean(errors.description)}
+                                    helperText={touched.description && errors.description}
                                 />
                             </Box>
                             
@@ -134,13 +144,13 @@ class ProjectComponent extends Component {
                                     multiple
                                     value={employees}
                                     onChange={this.handleEmployeeChange}
-                                    renderValue={(selected) => selected.map((emp) => emp.name).join(', ')} // 显示选中的员工名称
+                                    renderValue={(selected) => selected.map((emp) => emp.name).join(', ')}
                                 >
-                                    {allEmployees.map((employee) => (
-                                        <MenuItem key={employee.id} value={employee}>
-                                            <Checkbox checked={employees.includes(employee)} />
-                                            <ListItemText primary={employee.name} />
-                                        </MenuItem>
+                                {allEmployees.map((employee) => (
+                                    <MenuItem key={employee.id} value={employee}>
+                                    <Checkbox checked={employees.some(e => e.id === employee.id)} />
+                                    <ListItemText primary={employee.name} />
+                                    </MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>
@@ -153,7 +163,7 @@ class ProjectComponent extends Component {
                 </Formik>
             </Box>
         );
-    }  
+    }
 }
 
 export default withRouter(ProjectComponent);

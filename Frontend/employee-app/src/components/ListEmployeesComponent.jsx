@@ -1,129 +1,258 @@
-import React, { Component } from 'react';
-import EmployeeDataService from  '../service/EmployeeDataService.jsx';
-import withRouter from './withRouter';
-import AuthenticationService from '../service/AuthenticationService.jsx';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Paper, Typography } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import EmployeeDataService from '../service/EmployeeDataService';
+import SearchIcon from '@mui/icons-material/Search';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar, Alert, TextField, InputAdornment } from '@mui/material';
 
-class ListEmployeesComponent extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            employees: [],
-            message: null
+const ListEmployeesComponent = () => {
+    const [employees, setEmployees] = useState([]);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [openBulkDeleteDialog, setOpenBulkDeleteDialog] = useState(false);
+    const [employeeToDelete, setEmployeeToDelete] = useState(null);
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [selectedEmployees, setSelectedEmployees] = useState([]);
+    const [filteredEmployees, setFilteredEmployees] = useState([]);
+    const [searchText, setSearchText] = useState('');
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.message) {
+            setSnackbarMessage(location.state.message);
+            setOpenSnackbar(true);
+            // Clear state information
+            navigate(location.pathname, { replace: true, state: {} });
         }
-        this.refreshEmployees = this.refreshEmployees.bind(this);
-        this.deleteEmployeeClicked = this.deleteEmployeeClicked.bind(this);
-        this.updateEmployeeClicked = this.updateEmployeeClicked.bind(this);
-        this.addEmployeeClicked = this.addEmployeeClicked.bind(this);
-    }
+        refreshEmployees();
+    }, [location.state, navigate, location.pathname]);
 
-    componentDidMount() {
-        this.refreshEmployees();
-    }
+    useEffect(() => {
+        setFilteredEmployees(
+            employees.filter(emp => emp.name.toLowerCase().includes(searchText.toLowerCase()))
+        );
+    }, [searchText, employees]);
 
-    refreshEmployees() {
-        EmployeeDataService.retrieveAllEmployees()
-           .then(response => {
-                console.log(response);
-                this.setState({employees: response.data});
-           }
-        ).catch(error => {
-            return error;
+    const deleteSelectedEmployees = () => {
+        console.log("Deleting employees with IDs:", selectedEmployees);
+    
+        const deletePromises = selectedEmployees.map(id => {
+            return EmployeeDataService.deleteEmployee(id);
         });
-    }
-
-    deleteEmployeeClicked(id) {
-        EmployeeDataService.deleteEmployee(id)
-            .then(
-                response => {
-                    this.setState({ message: "Employee deleted successfully!"})
-                    this.refreshEmployees()
-                }
-            ).catch(error => {
-                return error;
+    
+        Promise.all(deletePromises)
+            .then(() => {
+                const remainingEmployees = employees.filter(emp => !selectedEmployees.includes(emp.id));
+                setEmployees(remainingEmployees);
+                setSelectedEmployees([]);
+                setSnackbarMessage("Deleted selected employees successfully!");
+                setOpenSnackbar(true);
             })
-    }
+            .catch(error => {
+                console.error('Error deleting employees:', error);
+                setSnackbarMessage("Failed to delete selected employees!");
+                setOpenSnackbar(true);
+            });
+    };
+    
+    const refreshEmployees = () => {
+        EmployeeDataService.retrieveAllEmployees()
+            .then(response => {
+                const transformedData = transformEmployeeData(response.data);
+                setEmployees(transformedData);
+            })
+            .catch(error => {
+                console.error('Error retrieving data:', error);
+                setSnackbarMessage(`Failed to retrieve data: ${error.message}`);
+                setOpenSnackbar(true);
+            });
+    };
 
-    updateEmployeeClicked(id) {
-        console.log('update ' + id)
-        this.props.navigation(`/employees/${id}`)
-    }
+    const transformEmployeeData = (employees) => {
+        return employees.map(emp => ({
+            ...emp,
+            projects: emp.projects.map(p => p.name).join(", ") // Convert project array to a comma-separated string
+        }));
+    };
+    
+    const addEmployeeClicked = () => {
+        navigate('/employees/-1');
+    };
 
-    addEmployeeClicked() {
-        this.props.navigation('/employees/-1')
-    }
-
-    render() {
-        if (!AuthenticationService.isUserLoggedIn()) {
-            this.props.navigation('/login');
-        } else {
-            return (
-                <div className="container">
-                    <Typography variant="h4" gutterBottom>
-                        All Employees
-                    </Typography>
-                    {this.state.message && <div className='alert alert-success'>{this.state.message}</div>}
-
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Id</TableCell>
-                                    <TableCell>Name</TableCell>
-                                    <TableCell>Position</TableCell>
-                                    <TableCell>Department</TableCell>
-                                    <TableCell>Email</TableCell>
-                                    <TableCell>Projects</TableCell>
-                                    <TableCell>Update</TableCell>
-                                    <TableCell>Delete</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {
-                                    this.state.employees.map(
-                                        employee =>
-                                            <TableRow key={employee.id}>
-                                                <TableCell>{employee.id}</TableCell>
-                                                <TableCell>{employee.name}</TableCell>
-                                                <TableCell>{employee.position}</TableCell>
-                                                <TableCell>{employee.department}</TableCell>
-                                                <TableCell>{employee.email}</TableCell>
-                                                <TableCell>{employee.projects.join(', ')}</TableCell> 
-                                                <TableCell>
-                                                    <Button
-                                                        variant="contained"
-                                                        color="primary"
-                                                        onClick={() => this.updateEmployeeClicked(employee.id)}>
-                                                        Update
-                                                    </Button>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Button
-                                                        variant="contained"
-                                                        color="secondary"
-                                                        onClick={() => this.deleteEmployeeClicked(employee.id)}>
-                                                        Delete
-                                                    </Button>
-                                                </TableCell>
-                                            </TableRow>
-                                    )
-                                }
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-
-                    <div className='row' style={{ marginTop: '20px' }}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={this.addEmployeeClicked}>
-                            Add Employee
-                        </Button>
-                    </div>
-                </div>
-            );
+    const confirmDeleteEmployee = () => {
+        if (employeeToDelete) {
+            EmployeeDataService.deleteEmployee(employeeToDelete.id)
+                .then(() => {
+                    setOpenDialog(false);
+                    refreshEmployees();
+                    setSnackbarMessage(`Employee ${employeeToDelete.name} deleted successfully!`);
+                    setOpenSnackbar(true);
+                })
+                .catch(error => {
+                    console.error('Error deleting employee:', error);
+                    setSnackbarMessage(`Failed to delete employee ${employeeToDelete.name}!`);
+                    setOpenSnackbar(true);
+                });
         }
-    }
-}
+    };
 
-export default withRouter(ListEmployeesComponent);
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    };
+
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpenSnackbar(false);
+    };
+
+    const columns = [
+        { field: 'name', headerName: 'Name', width: 150, editable: false },
+        { field: 'position', headerName: 'Position', width: 150, editable: false },
+        { field: 'department', headerName: 'Department', width: 130, editable: false },
+        { field: 'email', headerName: 'Email', width: 200, editable: false },
+        { field: 'projects', headerName: 'Projects', width: 200, editable: false },
+        {
+          field: 'actions',
+          headerName: 'Actions',
+          sortable: false,
+          width: 300,
+          renderCell: (params) => (
+            <>
+              <Button 
+                  variant="contained" 
+                  color="primary" 
+                  style={{ marginRight: 8 }}
+                  onClick={() => navigate(`/employees/${params.id}`)}
+              >
+                  Update
+              </Button>
+              <Button 
+                  variant="contained" 
+                  color="secondary" 
+                  onClick={() => {
+                      setEmployeeToDelete(params.row);
+                      setOpenDialog(true);
+                  }}
+              >
+                  Delete
+              </Button>
+            </>
+          ),
+        },
+      ];
+      
+      return (
+        <Box sx={{ padding: '20px 80px' }}>
+            <Box sx={{height: 600  }}>
+                <TextField
+                    label="Search Employees By Name"
+                    variant="outlined"
+                    fullWidth
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon />
+                            </InputAdornment>
+                        )
+                    }}
+                    style={{ marginBottom: '20px' }}
+                />
+                <DataGrid
+                    rows={filteredEmployees}
+                    columns={columns}
+                    pageSize={5}
+                    rowsPerPageOptions={[5, 10, 20]}
+                    checkboxSelection
+                    disableSelectionOnClick
+                    onRowSelectionModelChange={(newRowSelectionModel) => {
+                        setSelectedEmployees(newRowSelectionModel);
+                      }}
+                    rowSelectionModel={selectedEmployees}
+                    components={{
+                        Toolbar: GridToolbar,
+                    }}
+                />
+            </Box>
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 12, gap: '20px' }}>
+                <Button variant="contained" color="primary" onClick={addEmployeeClicked}>
+                    Add Employee
+                </Button>
+                <Button 
+                    variant="contained" 
+                    color="secondary" 
+                    onClick={() => {
+                        setOpenBulkDeleteDialog(true);
+                    }}
+                    disabled={selectedEmployees.length === 0} 
+                >
+                    Bulk Delete
+                </Button>
+            </Box>
+    
+            <Dialog
+                open={openDialog}
+                onClose={handleCloseDialog}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Are you sure you want to delete {employeeToDelete?.name}?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog}>Cancel</Button>
+                    <Button onClick={confirmDeleteEmployee} autoFocus>
+                        Confirm
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog
+                open={openBulkDeleteDialog}
+                onClose={() => setOpenBulkDeleteDialog(false)}
+                aria-labelledby="bulk-delete-dialog-title"
+                aria-describedby="bulk-delete-dialog-description"
+            >
+                <DialogTitle id="bulk-delete-dialog-title">{"Confirm Bulk Delete"}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="bulk-delete-dialog-description">
+                            Are you sure you want to delete {selectedEmployees.length} selected employees?  
+                        </DialogContentText>
+                    </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenBulkDeleteDialog(false)}>Cancel</Button>
+                    <Button 
+                        onClick={() => {
+                        deleteSelectedEmployees();
+                        setOpenBulkDeleteDialog(false);
+                        }} 
+                        autoFocus
+                    >
+                        Confirm
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Snackbar
+                open={openSnackbar}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
+        </Box>
+    );
+};
+
+export default ListEmployeesComponent;

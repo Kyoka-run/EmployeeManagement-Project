@@ -1,5 +1,7 @@
 package com.employeemanagement.model;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.*;
 import java.util.List;
 
@@ -9,17 +11,17 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String name;
-    private String describe;
+    private String description;
     @ManyToMany(mappedBy = "projects")
+    @JsonIgnoreProperties("projects")
     private List<Employee> employees;
-
     public Project() {
     }
 
-    public Project(long id, String name, String describe, List<Employee> employees) {
+    public Project(long id, String name, String description, List<Employee> employees) {
         this.id = id;
         this.name = name;
-        this.describe = describe;
+        this.description = description;
         this.employees = employees;
     }
 
@@ -31,12 +33,12 @@ public class Project {
         this.employees = employees;
     }
 
-    public String getDescribe() {
-        return describe;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDescribe(String describe) {
-        this.describe = describe;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getName() {

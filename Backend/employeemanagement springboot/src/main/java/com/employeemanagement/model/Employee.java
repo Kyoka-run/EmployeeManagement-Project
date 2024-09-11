@@ -1,5 +1,6 @@
 package com.employeemanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.*;
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class Employee {
 			joinColumns = @JoinColumn(name = "employee_id"),
 			inverseJoinColumns = @JoinColumn(name = "project_id")
 	)
+	@JsonIgnoreProperties("employees")
 	private List<Project> projects;
 	
 	public Employee() {
