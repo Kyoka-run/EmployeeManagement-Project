@@ -90,7 +90,7 @@ The Employee Management System project includes implemented test coverage to ens
     # Generate coverage report
     ./mvnw test jacoco:report
     
-##  Swagger API tests
+##  Swagger API Tests
 ![swagger](https://github.com/user-attachments/assets/8888cb83-6899-4910-b1ce-c6be837fb82e)
 
 ##  Application Screenshots
