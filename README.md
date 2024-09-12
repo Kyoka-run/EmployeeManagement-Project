@@ -25,6 +25,17 @@ The Employee Management System is a full-stack web application designed to manag
 ### Database
 - **MySQL** (Relational database for storing employee and project data)
 
+### npm Requirements
+- **nmp axios** 
+- **npm react-router-dom**
+- **@mui/material**
+- **@mui/icons-material**
+- **@mui/x-data-grid**
+
+### Other Software Tools
+- **MySQLWorkbench** (Store user information)
+- **Swagger** (Test PUT, GET, POST and DELETE requests)
+- 
 ## 📦 Installation Guide
 
 ### Prerequisites
@@ -67,4 +78,35 @@ The Employee Management System is a full-stack web application designed to manag
 
 The application will be accessible at http://localhost:3000.
 
+##  Backend Test Coverage
+
+Testing is implemented extensively in the Employee Management System to ensure robustness and reliability. You can run the tests using the following commands:
+```bash
+# Run tests
+./mvnw test
+
+# Generate coverage report
+./mvnw test jacoco:report
+
 ##  Application Screenshots
+
+### Login Page 
+![login](https://github.com/user-attachments/assets/953356be-0021-42a1-b525-0a9098eceded)
+### Logout Page 
+![logout](https://github.com/user-attachments/assets/ae51b60b-21b2-47c2-a19b-cb995e45b874)
+### Register Page 
+![register](https://github.com/user-attachments/assets/8afd65a6-3db1-43db-850b-fbe3d49c6118)
+### Employee List Page 
+![employee list](https://github.com/user-attachments/assets/09d52193-7fbb-455a-a6c9-f4114d99f854)
+### Project List Page 
+![project list](https://github.com/user-attachments/assets/1750b88d-7c16-4bf2-a296-788b42d50acc)
+### Dashboard Page 
+![dashboard](https://github.com/user-attachments/assets/ccd6ea91-701f-46c8-ab91-34f253b104aa)
+### Update Employee Page 
+![update employee](https://github.com/user-attachments/assets/00a83f51-828e-40f2-80c9-9e0b7437095b)
+### Create Project Page 
+![create project](https://github.com/user-attachments/assets/5122b5b1-9748-4d30-bb7f-7b0cd4cff0da)
+### Serach Function Page 
+![serach function](https://github.com/user-attachments/assets/c7c23662-7fc3-4eee-a600-df2880793d0d)
+### Bulk Delete Page 
+![bulk delete](https://github.com/user-attachments/assets/909b8bb7-ca4a-47fe-a5cd-d9e30b52efd0)
