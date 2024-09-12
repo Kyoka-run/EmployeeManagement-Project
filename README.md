@@ -10,6 +10,7 @@ The Employee Management System is a full-stack web application designed to manag
 - **Many-to-Many Relationship Management**: When an employee or project is updated, the changes are reflected in all associated entities. 
 - **Search and Filter**: Search employees and projects by name with dynamic filtering.
 - **Bulk Delete**: Allows for the bulk deletion of employees and projects.
+- **Dashboard**: Managing and visualizing all key aspects.
 
 ## ⚙️ Technologies Used
 
@@ -35,7 +36,7 @@ The Employee Management System is a full-stack web application designed to manag
 ### Other Software Tools
 - **MySQLWorkbench** (Store user information)
 - **Swagger** (Test PUT, GET, POST and DELETE requests)
-- 
+  
 ## 📦 Installation Guide
 
 ### Prerequisites
@@ -80,13 +81,16 @@ The application will be accessible at http://localhost:3000.
 
 ##  Backend Test Coverage
 
-Testing is implemented extensively in the Employee Management System to ensure robustness and reliability. You can run the tests using the following commands:
-```bash
-# Run tests
-./mvnw test
+The Employee Management System project includes implemented test coverage to ensure that the application functions as expected and to reduce the risk of defects.  You can run the tests using the following commands:
+    ```bash
+    # Run tests
+    ./mvnw test
 
-# Generate coverage report
-./mvnw test jacoco:report
+    # Generate coverage report
+    ./mvnw test jacoco:report
+    
+##  Swagger API tests
+![swagger](https://github.com/user-attachments/assets/8888cb83-6899-4910-b1ce-c6be837fb82e)
 
 ##  Application Screenshots
 
