@@ -12,6 +12,7 @@ const ListEmployeesComponent = () => {
     const [employeeToDelete, setEmployeeToDelete] = useState(null);
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const [selectedEmployees, setSelectedEmployees] = useState([]);
     const [filteredEmployees, setFilteredEmployees] = useState([]);
     const [searchText, setSearchText] = useState('');
@@ -21,6 +22,7 @@ const ListEmployeesComponent = () => {
     useEffect(() => {
         if (location.state?.message) {
             setSnackbarMessage(location.state.message);
+            setSnackbarSeverity('success');
             setOpenSnackbar(true);
             // Clear state information
             navigate(location.pathname, { replace: true, state: {} });
@@ -47,11 +49,13 @@ const ListEmployeesComponent = () => {
                 setEmployees(remainingEmployees);
                 setSelectedEmployees([]);
                 setSnackbarMessage("Deleted selected employees successfully!");
+                setSnackbarSeverity('success');
                 setOpenSnackbar(true);
             })
             .catch(error => {
                 console.error('Error deleting employees:', error);
                 setSnackbarMessage("Failed to delete selected employees!");
+                setSnackbarSeverity('error');
                 setOpenSnackbar(true);
             });
     };
@@ -64,7 +68,8 @@ const ListEmployeesComponent = () => {
             })
             .catch(error => {
                 console.error('Error retrieving data:', error);
-                setSnackbarMessage(`Failed to retrieve data: ${error.message}`);
+                setSnackbarMessage("Failed to retrieve data: You need login");
+                setSnackbarSeverity('error');
                 setOpenSnackbar(true);
             });
     };
@@ -72,7 +77,7 @@ const ListEmployeesComponent = () => {
     const transformEmployeeData = (employees) => {
         return employees.map(emp => ({
             ...emp,
-            projects: emp.projects.map(p => p.name).join(", ") // Convert project array to a comma-separated string
+            projects: emp.projects.map(p => p.name).join(", ") 
         }));
     };
     
@@ -87,11 +92,13 @@ const ListEmployeesComponent = () => {
                     setOpenDialog(false);
                     refreshEmployees();
                     setSnackbarMessage(`Employee ${employeeToDelete.name} deleted successfully!`);
+                    setSnackbarSeverity('success'); 
                     setOpenSnackbar(true);
                 })
                 .catch(error => {
                     console.error('Error deleting employee:', error);
                     setSnackbarMessage(`Failed to delete employee ${employeeToDelete.name}!`);
+                    setSnackbarSeverity('error');
                     setOpenSnackbar(true);
                 });
         }
@@ -247,7 +254,7 @@ const ListEmployeesComponent = () => {
                 onClose={handleCloseSnackbar}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
                     {snackbarMessage}
                 </Alert>
             </Snackbar>

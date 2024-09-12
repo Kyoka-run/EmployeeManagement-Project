@@ -6,6 +6,7 @@ import LoginComponent from './LoginComponent.jsx';
 import LogoutComponent from './LogoutComponent.jsx';
 import MenuComponent from './MenuComponent.jsx';
 import MyProvider from './MyProvider.jsx';
+import RegisterComponent from './RegisterComponent.jsx';
 import ListProjectsComponent from "./ListProjectsComponent.jsx";
 import ProjectComponent from "./ProjectComponent.jsx";
 
@@ -18,6 +19,7 @@ class EmployeeApp extends Component {
             <Routes>
                 <Route path="/" element={<LoginComponent />} />
                 <Route path="/login" element={<LoginComponent />} />
+                <Route path="/register" element={<RegisterComponent />} />
                 <Route path="/logout" element={<LogoutComponent />} />
                 <Route path="/employees" element={<ListEmployeesComponent/>} />
                 <Route path="/employees/:id" element={<EmployeeComponent/>} />

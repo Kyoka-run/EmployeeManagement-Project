@@ -5,44 +5,43 @@ export const USER_NAME_SESSION_ATTRIBUTE_NAME = 'authenticatedUser'
 
 class AuthenticationService {
 
-    executeBasicAuthenticationService(username, password) {
-        return axios.get(Employee_API + '/basicauth', {
-            headers: {
-                authorization: this.createBasicAuthToken(username, password)
-            }})
+    login(username, password) {
+        const params = new URLSearchParams();
+        params.append('username', username);
+        params.append('password', password);
+        return axios.post(Employee_API + '/login', params, { withCredentials: true });
     }
 
-    createBasicAuthToken(username, password) {
-        return 'Basic '+ btoa(username + ':' + password);
-    }
-
-    registerSuccessfulLogin(username,password) {
+    registerSuccessfulLogin(username) {
         sessionStorage.setItem(USER_NAME_SESSION_ATTRIBUTE_NAME, username);
-        this.setupAxiosInterceptors(this.createBasicAuthToken(username, password));
+        this.setupAxiosInterceptors();
     }
 
     isUserLoggedIn() {
-        let user = sessionStorage.getItem(USER_NAME_SESSION_ATTRIBUTE_NAME);
-        if (user === null) return false;
-        return true;
+        return sessionStorage.getItem(USER_NAME_SESSION_ATTRIBUTE_NAME) !== null;
     }
 
-    logout() {
-        sessionStorage.removeItem(USER_NAME_SESSION_ATTRIBUTE_NAME);
-        this.setupAxiosInterceptors("");
+    logout(context) {
+        axios.post("http://localhost:8080/api/logout", {}, { withCredentials: true })
+            .then(() => {
+                sessionStorage.removeItem(USER_NAME_SESSION_ATTRIBUTE_NAME);
+                if (context && context.setIsUserLoggedIn) {
+                    context.setIsUserLoggedIn(false);
+                }
+            })
+            .catch(error => {
+                console.error("Logout failed:", error); 
+            });
     }
-
-    setupAxiosInterceptors(token) {
-        axios.interceptors.request.use(
-            (config) => this.setAuthorizationHeader(config, token)
-        )
-    }
-
-    setAuthorizationHeader(config, token) {
-        if (this.isUserLoggedIn()) {
-            config.headers.Authorization = token;
-        }
-        return config;
+    
+    setupAxiosInterceptors() {
+        axios.interceptors.request.use((config) => {
+            let user = sessionStorage.getItem(USER_NAME_SESSION_ATTRIBUTE_NAME);
+            if (user) {
+                config.withCredentials = true;
+            }
+            return config;
+        });
     }
 }
 

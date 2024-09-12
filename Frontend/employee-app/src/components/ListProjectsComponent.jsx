@@ -12,6 +12,7 @@ const ListProjectsComponent = () => {
     const [projectToDelete, setProjectToDelete] = useState(null);
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success'); 
     const [selectedProjects, setSelectedProjects] = useState([]);
     const [filteredProjects, setFilteredProjects] = useState([]);
     const [searchText, setSearchText] = useState('');
@@ -21,8 +22,8 @@ const ListProjectsComponent = () => {
     useEffect(() => {
         if (location.state?.message) {
             setSnackbarMessage(location.state.message);
+            setSnackbarSeverity('success'); 
             setOpenSnackbar(true);
-            // Clear state information
             navigate(location.pathname, { replace: true, state: {} });
         }
         refreshProjects();
@@ -47,11 +48,13 @@ const ListProjectsComponent = () => {
                 setProjects(remainingProjects);
                 setSelectedProjects([]);
                 setSnackbarMessage("Deleted selected projects successfully!");
+                setSnackbarSeverity('success');
                 setOpenSnackbar(true);
             })
             .catch(error => {
                 console.error('Error deleting projects:', error);
                 setSnackbarMessage("Failed to delete selected projects!");
+                setSnackbarSeverity('error'); 
                 setOpenSnackbar(true);
             });
     };
@@ -65,14 +68,14 @@ const ListProjectsComponent = () => {
             .catch(error => {
                 console.error('Error retrieving data:', error);
                 setSnackbarMessage(`Failed to retrieve data: ${error.message}`);
-                setOpenSnackbar(true);
+                setSnackbarSeverity('error');
             });
     };
 
     const transformProjectData = (projects) => {
         return projects.map(proj => ({
             ...proj,
-            employees: proj.employees.map(emp => emp.name).join(", ") // Convert employee array to a comma-separated string
+            employees: proj.employees.map(emp => emp.name).join(", ") 
         }));
     };
     
@@ -87,11 +90,13 @@ const ListProjectsComponent = () => {
                     setOpenDialog(false);
                     refreshProjects();
                     setSnackbarMessage(`Project ${projectToDelete.name} deleted successfully!`);
+                    setSnackbarSeverity('success');
                     setOpenSnackbar(true);
                 })
                 .catch(error => {
                     console.error('Error deleting project:', error);
                     setSnackbarMessage(`Failed to delete project ${projectToDelete.name}!`);
+                    setSnackbarSeverity('error'); 
                     setOpenSnackbar(true);
                 });
         }
@@ -142,7 +147,7 @@ const ListProjectsComponent = () => {
         },
       ];
       
-      return (
+    return (
         <Box sx={{ padding: '20px 80px' }}>
             <Box sx={{height: 600  }}>
                 <TextField
@@ -184,15 +189,13 @@ const ListProjectsComponent = () => {
                 <Button 
                     variant="contained" 
                     color="secondary" 
-                    onClick={() => {
-                        setOpenBulkDeleteDialog(true);
-                    }}
+                    onClick={() => setOpenBulkDeleteDialog(true)}
                     disabled={selectedProjects.length === 0} 
                 >
                     Bulk Delete
                 </Button>
             </Box>
-    
+
             <Dialog
                 open={openDialog}
                 onClose={handleCloseDialog}
@@ -220,17 +223,17 @@ const ListProjectsComponent = () => {
                 aria-describedby="bulk-delete-dialog-description"
             >
                 <DialogTitle id="bulk-delete-dialog-title">{"Confirm Bulk Delete"}</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="bulk-delete-dialog-description">
-                            Are you sure you want to delete {selectedProjects.length} selected projects?  
-                        </DialogContentText>
-                    </DialogContent>
+                <DialogContent>
+                    <DialogContentText id="bulk-delete-dialog-description">
+                        Are you sure you want to delete {selectedProjects.length} selected projects?
+                    </DialogContentText>
+                </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenBulkDeleteDialog(false)}>Cancel</Button>
                     <Button 
                         onClick={() => {
-                        deleteSelectedProjects();
-                        setOpenBulkDeleteDialog(false);
+                            deleteSelectedProjects();
+                            setOpenBulkDeleteDialog(false);
                         }} 
                         autoFocus
                     >
@@ -245,7 +248,7 @@ const ListProjectsComponent = () => {
                 onClose={handleCloseSnackbar}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
                     {snackbarMessage}
                 </Alert>
             </Snackbar>

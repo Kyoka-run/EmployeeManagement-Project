@@ -132,7 +132,7 @@ export default function PersistentDrawerLeft() {
                 color="inherit"
                 component={Link}
                 to="/logout"
-                onClick={AuthenticationService.logout}
+                onClick={() => AuthenticationService.logout(context)}
                 sx={{ typography: 'h6' }}
               >
                 Logout

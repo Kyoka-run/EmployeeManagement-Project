@@ -5,12 +5,18 @@ export const MContext = React.createContext();
 
 class MyProvider extends Component {
     state = {isUserLoggedIn: false}
+
+    componentDidMount() {
+        const isLoggedIn = AuthenticationService.isUserLoggedIn();
+        this.setState({ isUserLoggedIn: isLoggedIn });
+    }
+
     render() {
-        this.state.isUserLoggedIn = AuthenticationService.isUserLoggedIn();
         return (
-            <MContext.Provider value={
-                { state:this.state,
-                    setIsUserLoggedIn:(value) => this.setState({isUserLoggedIn:value})}}>
+            <MContext.Provider value={{
+                state: this.state,
+                setIsUserLoggedIn: (value) => this.setState({ isUserLoggedIn: value })
+            }}>
                 {this.props.children}
             </MContext.Provider>
         )

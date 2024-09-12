@@ -10,13 +10,14 @@ class LoginComponent extends Component {
         super(props);
 
         this.state = {
-            username: "manbo",
-            password: "manbo",
+            username: "",
+            password: "",
             hasLoginDFailed: false,
             showSuccessMessage: false
         }
         this.handleChange = this.handleChange.bind(this);
         this.loginClicked = this.loginClicked.bind(this);
+        this.handleRegister = this.handleRegister.bind(this);
     }
 
     handleChange(event) {
@@ -25,20 +26,26 @@ class LoginComponent extends Component {
          })
     }
 
+    handleRegister() {
+        this.props.navigation('/register');  
+    }
+
     loginClicked(context) {
         AuthenticationService
-            .executeBasicAuthenticationService(this.state.username, this.state.password)
+            .login(this.state.username, this.state.password)
             .then(() => {
-                AuthenticationService.registerSuccessfulLogin(this.state.username,this.state.password)
+                AuthenticationService.registerSuccessfulLogin(this.state.username)
                 context.setIsUserLoggedIn(true)
                 this.props.navigation('/employees')
+                this.setState({ showSuccessMessage: true, hasLoginFailed: false })
             }).catch(() => {
                 context.setIsUserLoggedIn(false)
                 this.setState({ hasLoginFailed: false })
                 this.setState({ showSuccessMessage: true })
+                this.setState({ hasLoginFailed: true, showSuccessMessage: false })
             })
     }
-
+    
     render() {
         return (
             <Container maxWidth="sm">
@@ -58,8 +65,8 @@ class LoginComponent extends Component {
                         Login
                     </Typography>
                     <div className="container">
-                        {this.state.hasLoginFailed && <Alert severity="error">Invalid Credentials</Alert>}
-                        {this.state.showSuccessMessage && <Alert severity="success">Login Successful</Alert>}
+                    {this.state.hasLoginFailed && <Alert severity="error">Invalid Credentials</Alert>}
+                    {this.state.showSuccessMessage && <Alert severity="success">Login Successful</Alert>}
                         <TextField
                             data-testid="username"
                             label="User Name"
@@ -95,6 +102,14 @@ class LoginComponent extends Component {
                                 </Button>
                             )}
                         </MContext.Consumer>
+                        <Typography
+                            variant="body2"
+                            color="primary"
+                            sx={{ mt: 2, cursor: 'pointer', textAlign: 'center' }}
+                            onClick={this.handleRegister} 
+                        >
+                            No account? Register here
+                        </Typography>
                     </div>
                 </Box>
             </Container>
