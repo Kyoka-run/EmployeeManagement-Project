@@ -11,6 +11,7 @@ The Employee Management System is a full-stack web application designed to manag
 - **Search and Filter**: Search employees and projects by name with dynamic filtering.
 - **Bulk Delete**: Allows for the bulk deletion of employees and projects.
 - **Dashboard**: Managing and visualizing all key aspects.
+- **Success&Error Message**:Displayed when an action is completed.
 
 ## ⚙️ Technologies Used
 
